@@ -1,7 +1,16 @@
+# Tenancy OCID Value
 variable "tenancy-ocid" {}
+
+# User OCID Value
 variable "user-ocid" {}
+
+# Fingerprint Value
 variable "fp" {}
+
+# Private Key Contents
 variable "pkey" {}
+
+# SSH public key to use for SSH access
 varibale "ssh_pub_key" {}
 
 # Define the module source and its location                    
@@ -15,7 +24,7 @@ module "oci-stack-module" {
   vm_name                  = "oci-stack-instance"
   vm_image_ocid_x86_64     = "ocid1.image.oc1.uk-london-1.aaaaaaaaojqrgcwxe5ft3tcoccighpeavtpnv5jcgi7pbvssqgibz7mczjeq"
   vm_image_ocid_ampere     = "ocid1.image.oc1.uk-london-1.aaaaaaaa57kek4gtk6exlfu7yijjsa26bdmm42ibogeqi7ehwah5fxd6ybda"
-  private_key_path         = "ampere-a1-oraclelinux-8"
+  private_key              = var.pkey
   ssh_public_key           = var.ssh_pub_key
   tags                     = { Project = "oci-tf-stack" }
 
