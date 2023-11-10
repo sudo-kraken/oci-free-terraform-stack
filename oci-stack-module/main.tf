@@ -8,6 +8,7 @@ terraform {
   required_providers {
     oci = {
       source  = "hashicorp/oci"
+      version = ">= 4.0.0"
     }
   }
 }
@@ -20,121 +21,9 @@ provider "oci" {
   region           = var.region
 }
 
-resource "oci_core_volume_backup_policy" "oci_stack_volume_backup_policy" {
-  compartment_id = oci_identity_compartment.oci_stack.id
-  display_name   = "oci_stack"
-  freeform_tags  = var.tags
-
-  schedules {
-    backup_type       = "INCREMENTAL"
-    day_of_month      = 1
-    day_of_week       = "FRIDAY"
-    hour_of_day       = 4
-    month             = "NOVEMBER"
-    offset_seconds    = 0
-    offset_type       = "STRUCTURED"
-    period            = "ONE_WEEK"
-    retention_seconds = 3024000
-    time_zone         = "REGIONAL_DATA_CENTER_TIME"
-  }
-}
-
-resource "oci_core_volume_backup_policy_assignment" "oci_stack_boot_volume_backup_policy_assignment" {
-  count     = 3
-  asset_id  = data.oci_core_boot_volumes.oci_stack_boot_volumes.boot_volumes[count.index].id
-  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
-
-  depends_on = [
-    oci_core_instance.vm_instance_x86_64,
-    oci_core_instance.vm_instance_ampere
-  ]
-}
-
-resource "oci_identity_compartment" "oci_stack" {
-  compartment_id = var.tenancy_ocid
-  description    = "Compartment for oci_stack resources."
-  name           = var.compartment_name
-  freeform_tags  = var.tags
-}
-
-resource "oci_core_instance" "vm_instance_ampere" {
-  availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id                      = oci_identity_compartment.oci_stack.id
-  shape                               = "VM.Standard.A1.Flex"
-  display_name                        = join("", [var.vm_name, "10"])
-  preserve_boot_volume                = false
-  is_pv_encryption_in_transit_enabled = true
-  freeform_tags                       = var.tags
-
-  #   lifecycle {
-  #     prevent_destroy = true
-  #   }
-
-  shape_config {
-    memory_in_gbs = 24
-    ocpus         = 4
-  }
-
-  metadata = {
-    ssh_authorized_keys = var.ssh_public_key
-  }
-
-  source_details {
-    source_id   = var.vm_image_ocid_ampere
-    source_type = "image"
-  }
-
-  availability_config {
-    is_live_migration_preferred = true
-  }
-
-  create_vnic_details {
-    assign_public_ip          = true
-    subnet_id                 = oci_core_subnet.vcn-public-subnet.id
-    assign_private_dns_record = true
-    hostname_label            = join("", [var.vm_name, "10"])
-    private_ip                = join(".", ["10", "0", "0", 110])
-    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
-    freeform_tags             = var.tags
-  }
-}
-
-resource "oci_core_instance" "vm_instance_x86_64" {
-  count                               = 2
-  availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id                      = oci_identity_compartment.oci_stack.id
-  shape                               = "VM.Standard.E2.1.Micro"
-  display_name                        = join("", [var.vm_name, "0", count.index + 1])
-  preserve_boot_volume                = false
-  is_pv_encryption_in_transit_enabled = true
-  freeform_tags                       = var.tags
-
-  #   lifecycle {
-  #     prevent_destroy = true
-  #   }
-
-  metadata = {
-    ssh_authorized_keys = var.ssh_public_key
-  }
-
-  source_details {
-    source_id   = var.vm_image_ocid_x86_64
-    source_type = "image"
-  }
-
-  availability_config {
-    is_live_migration_preferred = true
-  }
-
-  create_vnic_details {
-    assign_public_ip          = true
-    subnet_id                 = oci_core_subnet.vcn-public-subnet.id
-    assign_private_dns_record = true
-    hostname_label            = join("", [var.vm_name, "0", count.index + 1])
-    private_ip                = join(".", ["10", "0", "0", count.index + 101])
-    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
-    freeform_tags             = var.tags
-  }
+# Cloud-Init file
+locals {
+  cloud_init_template_file = "{path.module}/templates/cloud-init.yaml.tpl"
 }
 
 data "oci_identity_availability_domains" "ads" {
@@ -146,7 +35,27 @@ data "oci_core_boot_volumes" "oci_stack_boot_volumes" {
   compartment_id      = oci_identity_compartment.oci_stack.id
 }
 
-# Source from https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_dhcp_options
+resource "oci_identity_compartment" "oci_stack" {
+  compartment_id = var.tenancy_ocid
+  description    = "Compartment for oci_stack resources."
+  name           = var.compartment_name
+  freeform_tags  = var.tags
+}
+
+module "vcn" {
+  source  = "oracle-terraform-modules/vcn/oci"
+  version = "2.2.0"
+
+  compartment_id = oci_identity_compartment.oci_stack.id
+  region         = var.region
+  vcn_name       = var.compartment_name
+  vcn_dns_label  = var.compartment_name
+
+  internet_gateway_enabled = true
+  nat_gateway_enabled      = false
+  service_gateway_enabled  = false
+  vcn_cidr                 = "10.0.0.0/16"
+}
 
 resource "oci_core_dhcp_options" "dhcp-options" {
   compartment_id = oci_identity_compartment.oci_stack.id
@@ -283,19 +192,78 @@ resource "oci_core_network_security_group_security_rule" "oci_stack-network-secu
   stateless                 = true
 }
 
-module "vcn" {
-  source  = "oracle-terraform-modules/vcn/oci"
-  version = "2.2.0"
+resource "oci_core_instance" "vm_instance_ampere" {
+  availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
+  compartment_id                      = oci_identity_compartment.oci_stack.id
+  shape                               = "VM.Standard.A1.Flex"
+  display_name                        = join("", [var.vm_name, "10"])
+  preserve_boot_volume                = false
+  is_pv_encryption_in_transit_enabled = true
+  freeform_tags                       = var.tags
 
-  compartment_id = oci_identity_compartment.oci_stack.id
-  region         = "ap-southeast-2"
-  vcn_name       = var.compartment_name
-  vcn_dns_label  = var.compartment_name
+  shape_config {
+    memory_in_gbs = 24
+    ocpus         = 4
+  }
 
-  internet_gateway_enabled = true
-  nat_gateway_enabled      = false
-  service_gateway_enabled  = false
-  vcn_cidr                 = "10.0.0.0/16"
+  metadata = {
+    ssh_authorized_keys = var.ssh_public_key
+    user_data = "${base64encode(file("${local.cloud_init_template_file}"))}"
+  }
+
+  source_details {
+    source_id   = var.vm_image_ocid_ampere
+    source_type = "image"
+  }
+
+  availability_config {
+    is_live_migration_preferred = true
+  }
+
+  create_vnic_details {
+    assign_public_ip          = true
+    subnet_id                 = oci_core_subnet.vcn-public-subnet.id
+    assign_private_dns_record = true
+    hostname_label            = join("", [var.vm_name, "10"])
+    private_ip                = join(".", ["10", "0", "0", 110])
+    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
+    freeform_tags             = var.tags
+  }
+}
+
+resource "oci_core_instance" "vm_instance_x86_64" {
+  count                               = 2
+  availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
+  compartment_id                      = oci_identity_compartment.oci_stack.id
+  shape                               = "VM.Standard.E2.1.Micro"
+  display_name                        = join("", [var.vm_name, "0", count.index + 1])
+  preserve_boot_volume                = false
+  is_pv_encryption_in_transit_enabled = true
+  freeform_tags                       = var.tags
+
+  metadata = {
+    ssh_authorized_keys = var.ssh_public_key
+    user_data = "${base64encode(file("${local.cloud_init_template_file}"))}"
+  }
+
+  source_details {
+    source_id   = var.vm_image_ocid_x86_64
+    source_type = "image"
+  }
+
+  availability_config {
+    is_live_migration_preferred = true
+  }
+
+  create_vnic_details {
+    assign_public_ip          = true
+    subnet_id                 = oci_core_subnet.vcn-public-subnet.id
+    assign_private_dns_record = true
+    hostname_label            = join("", [var.vm_name, "0", count.index + 1])
+    private_ip                = join(".", ["10", "0", "0", count.index + 101])
+    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
+    freeform_tags             = var.tags
+  }
 }
 
 resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
@@ -325,6 +293,36 @@ resource "oci_core_volume_attachment" "extra_volume_attachment" {
   display_name                        = "oci_stack-core-volume-attachment"
   is_pv_encryption_in_transit_enabled = true
   is_read_only                        = false
+}
+
+resource "oci_core_volume_backup_policy" "oci_stack_volume_backup_policy" {
+  compartment_id = oci_identity_compartment.oci_stack.id
+  display_name   = "oci_stack"
+  freeform_tags  = var.tags
+
+  schedules {
+    backup_type       = "INCREMENTAL"
+    day_of_month      = 1
+    day_of_week       = "FRIDAY"
+    hour_of_day       = 4
+    month             = "NOVEMBER"
+    offset_seconds    = 0
+    offset_type       = "STRUCTURED"
+    period            = "ONE_WEEK"
+    retention_seconds = 3024000
+    time_zone         = "REGIONAL_DATA_CENTER_TIME"
+  }
+}
+
+resource "oci_core_volume_backup_policy_assignment" "oci_stack_boot_volume_backup_policy_assignment" {
+  count     = 3
+  asset_id  = data.oci_core_boot_volumes.oci_stack_boot_volumes.boot_volumes[count.index].id
+  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
+
+  depends_on = [
+    oci_core_instance.vm_instance_x86_64,
+    oci_core_instance.vm_instance_ampere
+  ]
 }
 
 # Output the "list" of all availability domains.
