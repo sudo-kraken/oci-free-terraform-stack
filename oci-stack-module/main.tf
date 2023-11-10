@@ -1,3 +1,4 @@
+# Specify the required Terraform version and the required providers.
 terraform {
   required_version = ">= 1.6.0"
 
@@ -9,6 +10,7 @@ terraform {
   }
 }
 
+# Configure the Oracle Cloud Infrastructure (OCI) provider with necessary credentials and region.
 provider "oci" {
   tenancy_ocid          = var.tenancy_ocid
   user_ocid             = var.user_ocid
@@ -17,21 +19,24 @@ provider "oci" {
   region                = var.region
 }
 
-# Cloud-Init file
+# Define local variables for cloud-init template files.
 locals {
   a1_cloud_init_template_file = "${path.module}/templates/a1-cloud-init.yaml.tpl"
   e2_cloud_init_template_file = "${path.module}/templates/e2-cloud-init.yaml.tpl"
 }
 
+# Fetch availability domain information for the specified compartment.
 data "oci_identity_availability_domains" "ads" {
   compartment_id = var.tenancy_ocid
 }
 
+# Fetch boot volume information for instances in the availability domain.
 data "oci_core_boot_volumes" "oci_stack_boot_volumes" {
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
   compartment_id      = oci_identity_compartment.oci_stack.id
 }
 
+# Create a new compartment for OCI stack resources.
 resource "oci_identity_compartment" "oci_stack" {
   compartment_id = var.tenancy_ocid
   description    = "Compartment for oci_stack resources."
@@ -39,6 +44,7 @@ resource "oci_identity_compartment" "oci_stack" {
   freeform_tags  = var.tags
 }
 
+# Create a Virtual Cloud Network (VCN) in OCI.
 module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
   version = "3.5.5"
@@ -54,6 +60,7 @@ module "vcn" {
   vcn_cidrs                = ["10.0.0.0/16"]
 }
 
+# Configure DHCP options for the VCN.
 resource "oci_core_dhcp_options" "dhcp-options" {
   compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
@@ -72,6 +79,7 @@ resource "oci_core_dhcp_options" "dhcp-options" {
 
 }
 
+# Create a public subnet within the VCN.
 resource "oci_core_subnet" "vcn-public-subnet" {
   compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
@@ -88,12 +96,14 @@ resource "oci_core_subnet" "vcn-public-subnet" {
   dns_label       = "publicsubnet"
 }
 
+# Define a security list with necessary egress and ingress rules.
 resource "oci_core_security_list" "public-security-list" {
   compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
   display_name   = "security-list-public"
   freeform_tags  = var.tags
 
+  # Egress rule to allow all outbound traffic.
   egress_security_rules {
     stateless        = false
     destination      = "0.0.0.0/0"
@@ -114,6 +124,7 @@ resource "oci_core_security_list" "public-security-list" {
     }
   }
 
+  # Ingress rules for SSH and ICMP
   ingress_security_rules {
     stateless   = false
     source      = "0.0.0.0/0"
@@ -164,6 +175,7 @@ resource "oci_core_security_list" "public-security-list" {
   }
 }
 
+# Define network security group and its rules.
 resource "oci_core_network_security_group" "oci_stack-network-security-group" {
   compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
@@ -171,6 +183,7 @@ resource "oci_core_network_security_group" "oci_stack-network-security-group" {
   freeform_tags  = var.tags
 }
 
+# Ingress rule for the network security group.
 resource "oci_core_network_security_group_security_rule" "oci_stack-network-security-group-list-ingress" {
   network_security_group_id = oci_core_network_security_group.oci_stack-network-security-group.id
   direction                 = "INGRESS"
@@ -180,6 +193,7 @@ resource "oci_core_network_security_group_security_rule" "oci_stack-network-secu
   stateless                 = true
 }
 
+# Egress rule for the network security group.
 resource "oci_core_network_security_group_security_rule" "oci_stack-network-security-group-list-egress" {
   network_security_group_id = oci_core_network_security_group.oci_stack-network-security-group.id
   direction                 = "EGRESS"
@@ -189,6 +203,7 @@ resource "oci_core_network_security_group_security_rule" "oci_stack-network-secu
   stateless                 = true
 }
 
+# Define instances for Ampere and x86_64 architectures.
 resource "oci_core_instance" "vm_instance_ampere" {
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
   compartment_id                      = oci_identity_compartment.oci_stack.id
@@ -263,7 +278,7 @@ resource "oci_core_instance" "vm_instance_x86_64" {
   }
 }
 
-# Extra Drive
+# Define an additional storage volume and attach it to the ampere instance.
 resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
   compartment_id       = oci_identity_compartment.oci_stack.id
   availability_domain  = data.oci_identity_availability_domains.ads.availability_domains[0].name
