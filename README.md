@@ -29,3 +29,11 @@ This module is designed for seamless integration with GitHub Actions, allowing f
 - Applies the Terraform configuration to deploy the resources.
 - In case of failure, the workflow is designed to automatically destroy the resources, ensuring a clean state.
 
+## GitHub Action Execution
+The `main.tf` file located in the root directory of this repository is crucial for the GitHub Action execution. It serves as the entry point for the Terraform operations triggered by the GitHub Action workflow. When the workflow is run, it uses the configuration defined in `main.tf` to deploy the module. This configuration includes updating and installing additional packages, including Docker and Docker Compose, on the instances.
+
+### Accessing the Instances
+Upon successful completion of the action, the public IPs of the instances will be displayed in the output. You can access these instances via SSH using the username `opc` and the SSH key you have provided. The SSH key is crucial for secure and authenticated access to the instances.
+
+It's important to ensure that `main.tf` is correctly set up and updated, as it directly influences the infrastructure that the GitHub Action will provision and manage in OCI (Oracle Cloud Infrastructure).
+
