@@ -53,7 +53,9 @@ jobs:
       run: |
         echo "TF_VAR_tenancy-ocid=${{ secrets.TENANCY_OCID }}" >> $GITHUB_ENV
         echo "TF_VAR_user-ocid=${{ secrets.USER_OCID }}" >> $GITHUB_ENV
-        echo "TF_VAR_pkey=${{ secrets.PKEY }}" >> $GITHUB_ENV
+        echo "TF_VAR_pkey<<EOF" >> $GITHUB_ENV
+        echo "${{ secrets.TF_VAR_PKEY }}" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
         echo "TF_VAR_fp=${{ secrets.FP }}" >> $GITHUB_ENV
         echo "TF_VAR_ssh-pub-key=${{ secrets.SSH_PUB_KEY }}" >> $GITHUB_ENV
             
