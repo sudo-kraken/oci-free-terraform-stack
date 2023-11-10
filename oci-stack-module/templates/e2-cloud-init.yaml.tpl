@@ -27,6 +27,5 @@ runcmd:
   - docker compose --version
   - systemctl enable docker
   - systemctl start docker
-  - docker run -d --name registry --restart=always -p 4000:5000  -v registry:/var/lib/registry registry:2
   - docker info
   - echo 'OCI Ampere E2 OracleLinux 9.2' >> /etc/motd
