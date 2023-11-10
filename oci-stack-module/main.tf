@@ -273,15 +273,15 @@ resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
   is_auto_tune_enabled = true
 }
 
-resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backup_policy_assignment" {
-  asset_id  = oci_core_volume.vm_instance_oci_stack_core_volume.id
-  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
+#resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backup_policy_assignment" {
+#  asset_id  = oci_core_volume.vm_instance_oci_stack_core_volume.id
+#  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
 
-  depends_on = [
-    oci_core_instance.vm_instance_x86_64,
-    oci_core_instance.vm_instance_ampere
-  ]
-}
+#  depends_on = [
+#    oci_core_instance.vm_instance_x86_64,
+#    oci_core_instance.vm_instance_ampere
+#  ]
+#}
 
 resource "oci_core_volume_attachment" "extra_volume_attachment" {
   attachment_type                     = "paravirtualized"
