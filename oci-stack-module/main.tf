@@ -273,16 +273,6 @@ resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
   is_auto_tune_enabled = true
 }
 
-#resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backup_policy_assignment" {
-#  asset_id  = oci_core_volume.vm_instance_oci_stack_core_volume.id
-#  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
-
-#  depends_on = [
-#    oci_core_instance.vm_instance_x86_64,
-#    oci_core_instance.vm_instance_ampere
-#  ]
-#}
-
 resource "oci_core_volume_attachment" "extra_volume_attachment" {
   attachment_type                     = "paravirtualized"
   instance_id                         = oci_core_instance.vm_instance_ampere.id
@@ -293,33 +283,4 @@ resource "oci_core_volume_attachment" "extra_volume_attachment" {
   is_read_only                        = false
 }
 
-# Backup Policy
-#resource "oci_core_volume_backup_policy" "oci_stack_volume_backup_policy" {
-#  compartment_id = oci_identity_compartment.oci_stack.id
-#  display_name   = "oci_stack"
-#  freeform_tags  = var.tags
 
-#  schedules {
-#    backup_type       = "INCREMENTAL"
-#    day_of_month      = 1
-#    day_of_week       = "FRIDAY"
-#    hour_of_day       = 4
-#    month             = "NOVEMBER"
-#    offset_seconds    = 0
-#    offset_type       = "STRUCTURED"
-#    period            = "ONE_WEEK"
-#    retention_seconds = 3024000
-#    time_zone         = "REGIONAL_DATA_CENTER_TIME"
-#  }
-#}
-
-#resource "oci_core_volume_backup_policy_assignment" "oci_stack_boot_volume_backup_policy_assignment" {
-#  count     = 3
-#  asset_id  = data.oci_core_boot_volumes.oci_stack_boot_volumes.boot_volumes[count.index].id
-#  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
-
-#  depends_on = [
-#    oci_core_instance.vm_instance_x86_64,
-#    oci_core_instance.vm_instance_ampere
-#  ]
-#}
