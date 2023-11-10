@@ -67,7 +67,7 @@ resource "oci_core_dhcp_options" "dhcp-options" {
 
   options {
     type                = "SearchDomain"
-    search_domain_names = ["oci_stack.oraclevcn.com"]
+    search_domain_names = ["ocistack.oraclevcn.com"]
   }
 
 }
