@@ -12,7 +12,7 @@ terraform {
 provider "oci" {
   tenancy_ocid          = var.tenancy_ocid
   user_ocid             = var.user_ocid
-  private_key_path      = var.private_key
+  private_key_path      = var.private_key_path
   fingerprint           = var.fingerprint
   region                = var.region
 }
@@ -51,7 +51,7 @@ module "vcn" {
   create_internet_gateway  = true
   create_nat_gateway       = false
   create_service_gateway   = false
-  vcn_cidrs                = "10.0.0.0/16"
+  vcn_cidrs                = ["10.0.0.0/16"]
 }
 
 resource "oci_core_dhcp_options" "dhcp-options" {
