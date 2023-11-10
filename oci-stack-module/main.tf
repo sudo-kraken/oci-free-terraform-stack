@@ -52,7 +52,6 @@ module "vcn" {
   create_nat_gateway       = false
   create_service_gateway   = false
   vcn_cidrs                = "10.0.0.0/16"
-  tags                     = var.tags
 }
 
 resource "oci_core_dhcp_options" "dhcp-options" {
