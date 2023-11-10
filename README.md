@@ -1,4 +1,23 @@
-# Terraform OCI Stack Module (Free Forever)
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&width=435&lines=OCI+Stack+Terraform+Module+(Free+Forever)" alt="Typing SVG"/>
+</p>
+
+<p align="center">
+  <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="50" alt="Repo Languages and Tools"/>
+</p>
+
+<h1 align="center">Repo Languages and Tools</h1>
+ 
+<p align="center">
+  <a href="https://www.terraform.io/"><img src="https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle" /></a>
+  <a href="https://www.terraform.io/"><img src="https://img.shields.io/badge/-Terraform-623CE4?style=flat&logo=terraform&logoColor=white" alt="Terraform" /></a>
+  <a href="https://git-scm.com/"><img src="https://img.shields.io/badge/-Git-F05032?style=flat&logo=git&logoColor=white" alt="Git" /></a>
+  <a href="https://github.com/features/actions"><img src="https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat&logo=github-actions&logoColor=white" alt="GitHub Actions" /></a>
+  <a href="https://www.linux.org/"><img src="https://img.shields.io/badge/-Linux-FCC624?style=flat&logo=linux&logoColor=black" alt="Linux" /></a>
+  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" /></a>
+  <a href="https://www.gnu.org/software/bash/"><img src="https://img.shields.io/badge/-Bash-4EAA25?style=flat&logo=gnu-bash&logoColor=white" alt="Bash" /></a>
+</p>
+
 This module is used for provisioning Oracle Cloud Infrastructure (OCI) deployments, offering a comprehensive and efficient solution for setting up a robust cloud environment. It seamlessly provisions a stack comprising of;
   - 2x VM.Standard.E2.1.Micro instances, each with 1 OCPU and 1 GB RAM
   - 1x VM.Standard.A1.Flex instance equipped with 4 OCPUs and 24 GB RAM. Additionally, it includes a 59 GB block volume
