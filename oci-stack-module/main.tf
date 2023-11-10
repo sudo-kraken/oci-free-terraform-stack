@@ -30,12 +30,12 @@ resource "oci_core_volume_backup_policy" "homelab_volume_backup_policy" {
     backup_type       = "INCREMENTAL"
     day_of_month      = 1
     day_of_week       = "FRIDAY"
-    hour_of_day       = 3
-    month             = "JANUARY"
+    hour_of_day       = 4
+    month             = "NOVEMBER"
     offset_seconds    = 0
     offset_type       = "STRUCTURED"
     period            = "ONE_WEEK"
-    retention_seconds = 3024000 # 5 weeks
+    retention_seconds = 3024000
     time_zone         = "REGIONAL_DATA_CENTER_TIME"
   }
 }
