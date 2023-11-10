@@ -8,8 +8,8 @@ variable "user_ocid" {
   type        = string
 }
 
-variable "private_key_path" {
-  description = "The path to the private key"
+variable "private_key" {
+  description = "The contents of the private key"
   type        = string
 }
 
