@@ -318,7 +318,7 @@ resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backu
   ]
 }
 
-resource "oci_core_volume_attachment" "test_volume_attachment" {
+resource "oci_core_volume_attachment" "extra_volume_attachment" {
   attachment_type                     = "paravirtualized"
   instance_id                         = oci_core_instance.vm_instance_ampere.id
   volume_id                           = oci_core_volume.vm_instance_oci_stack_core_volume.id
