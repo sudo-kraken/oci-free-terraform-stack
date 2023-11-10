@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&width=435&lines=OCI+Stack+Terraform+Module+(+Free+Forever+)" alt="Typing SVG"/>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&width=500&lines=OCI+Stack+Terraform+Module+(Free+Forever)" alt="Typing SVG"/>
 </p>
 
 <p align="center">
