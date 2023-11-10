@@ -31,7 +31,7 @@ A pivotal aspect of this module is its sophisticated networking setup, creating 
 ### Secrets Required
 | Secret Name | Description |
 |-------------|-------------|
-| `GH_TOKEN` | PAT Token the pipeline uses to checkout the repo. |
+| `PAT_TOKEN` | PAT Token the pipeline uses to checkout the repo. |
 | `PKEY` | OCI SSH private key. |
 | `TENANCY_OCID` | OCID of your OCI tenancy. |
 | `USER_OCID` | OCID of the OCI user. |
