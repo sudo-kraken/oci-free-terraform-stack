@@ -189,7 +189,7 @@ resource "oci_core_network_security_group_security_rule" "oci_stack-network-secu
   stateless                 = true
 }
 
-resource "oci_core_instance" "" {
+resource "oci_core_instance" "vm_instance_ampere" {
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
   compartment_id                      = oci_identity_compartment.oci_stack.id
   shape                               = "VM.Standard.A1.Flex"
@@ -285,7 +285,7 @@ resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
 
 #resource "oci_core_volume_attachment" "extra_volume_attachment" {
 #  attachment_type                     = "paravirtualized"
-#  instance_id                         = .vm_instance_ampere.id
+#  instance_id                         = oci_core_instance.vm_instance_ampere.id
 #  volume_id                           = oci_core_volume.vm_instance_oci_stack_core_volume.id
 #  device                              = "/dev/oracleoci/oraclevdb"
 #  display_name                        = "oci_stack-core-volume-attachment"
