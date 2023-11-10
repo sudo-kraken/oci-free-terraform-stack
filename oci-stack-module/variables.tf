@@ -30,7 +30,7 @@ variable "compartment_name" {
 
 variable "tags" {
   description = "Freeform tags for the resources"
-  type        = map(string)
+  type        = map(any)
   default     = {}
 }
 
