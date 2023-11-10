@@ -14,7 +14,7 @@ variable "pkey_path" {}
 variable "ssh_pub_key" {}
 
 # Define the module source and its location                    
-module "oci-stack-module" {
+module "oci-stack" {
   source                   = "./oci-stack-module"
   tenancy_ocid             = var.tenancy_ocid
   user_ocid                = var.user_ocid
