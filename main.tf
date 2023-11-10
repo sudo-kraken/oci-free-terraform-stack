@@ -30,10 +30,18 @@ module "oci-stack-module" {
 
 }
 
-output "public-ip-x86_64-instances" {
-  value = module.oci-stack-module.oci_core_instance.vm_instance_x86_64.*.public_ip
+output "module_all_availability_domains" {
+  value = module.oci_stack.all-availability-domains-in-your-tenancy
 }
 
-output "public-ip-ampere-instance" {
-  value = module.oci-stack-module.oci_core_instance.vm_instance_ampere.public_ip
+output "module_compartment_name" {
+  value = module.oci_stack.compartment-name
+}
+
+output "module_public_ips_x86_64" {
+  value = module.oci_stack.public-ip-x86_64-instances
+}
+
+output "module_public_ip_ampere" {
+  value = module.oci_stack.public-ip-ampere-instance
 }
