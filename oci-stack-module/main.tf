@@ -19,8 +19,8 @@ provider "oci" {
 
 # Cloud-Init file
 locals {
-  a1_cloud_init_template_file = "{path.module}/templates/a1-cloud-init.yaml.tpl"
-  e2_cloud_init_template_file = "{path.module}/templates/e2-cloud-init.yaml.tpl"
+  a1_cloud_init_template_file = "./templates/a1-cloud-init.yaml.tpl"
+  e2_cloud_init_template_file = "./templates/e2-cloud-init.yaml.tpl"
 }
 
 data "oci_identity_availability_domains" "ads" {
