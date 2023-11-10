@@ -189,7 +189,7 @@ resource "oci_core_network_security_group_security_rule" "oci_stack-network-secu
   stateless                 = true
 }
 
-resource "oci_core_instance" "vm_instance_ampere" {
+resource "oci_core_instance" "" {
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
   compartment_id                      = oci_identity_compartment.oci_stack.id
   shape                               = "VM.Standard.A1.Flex"
@@ -273,25 +273,25 @@ resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
   is_auto_tune_enabled = true
 }
 
-resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backup_policy_assignment" {
-  asset_id  = oci_core_volume.vm_instance_oci_stack_core_volume.id
-  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
+#resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backup_policy_assignment" {
+#  asset_id  = oci_core_volume.vm_instance_oci_stack_core_volume.id
+#  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
 
-  depends_on = [
-    oci_core_instance.vm_instance_x86_64,
-    oci_core_instance.vm_instance_ampere
-  ]
-}
+#  depends_on = [
+#    oci_core_instance.vm_instance_x86_64,
+#    oci_core_instance.vm_instance_ampere
+#  ]
+#}
 
-resource "oci_core_volume_attachment" "extra_volume_attachment" {
-  attachment_type                     = "paravirtualized"
-  instance_id                         = oci_core_instance.vm_instance_ampere.id
-  volume_id                           = oci_core_volume.vm_instance_oci_stack_core_volume.id
-  device                              = "/dev/oracleoci/oraclevdb"
-  display_name                        = "oci_stack-core-volume-attachment"
-  is_pv_encryption_in_transit_enabled = true
-  is_read_only                        = false
-}
+#resource "oci_core_volume_attachment" "extra_volume_attachment" {
+#  attachment_type                     = "paravirtualized"
+#  instance_id                         = .vm_instance_ampere.id
+#  volume_id                           = oci_core_volume.vm_instance_oci_stack_core_volume.id
+#  device                              = "/dev/oracleoci/oraclevdb"
+#  display_name                        = "oci_stack-core-volume-attachment"
+#  is_pv_encryption_in_transit_enabled = true
+#  is_read_only                        = false
+#}
 
 # Backup Policy
 resource "oci_core_volume_backup_policy" "oci_stack_volume_backup_policy" {
