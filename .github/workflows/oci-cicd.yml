@@ -48,6 +48,15 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     
+    # Set up Terraform variables from GitHub Secrets
+    - name: Setup Terraform Vars
+      run: |
+        echo "TF_VAR_tenancy-ocid=${{ secrets.TENANCY_OCID }}" >> $GITHUB_ENV
+        echo "TF_VAR_user-ocid=${{ secrets.USER_OCID }}" >> $GITHUB_ENV
+        echo "TF_VAR_pkey=${{ secrets.PKEY }}" >> $GITHUB_ENV
+        echo "TF_VAR_fp=${{ secrets.FP }}" >> $GITHUB_ENV
+        echo "TF_VAR_ssh-pub-key=${{ secrets.FP }}" >> $GITHUB_ENV
+            
     # Initialise Terraform 
     - name: Terraform Init
       run: terraform init
