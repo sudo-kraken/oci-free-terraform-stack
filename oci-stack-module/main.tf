@@ -8,7 +8,7 @@ terraform {
   required_providers {
     oci = {
       source  = "hashicorp/oci"
-      version = ">= 5.20.0"
+      version = ">= 4.0.0"
     }
   }
 }
@@ -208,33 +208,6 @@ resource "oci_core_security_list" "public-security-list" {
       max = 22
     }
   }
-
-  ## If you wish to open further network ports to the internet,
-  ## add your firewall ACLs as the following:
-
-  #   ingress_security_rules {
-  #     stateless   = false
-  #     source      = "0.0.0.0/0"
-  #     source_type = "CIDR_BLOCK"
-  #     protocol    = "6"
-  #     description = "HTTP traffic"
-
-  #     tcp_options {
-  #       min = 80
-  #       max = 80
-  #     }
-
-  #   ingress_security_rules {
-  #     stateless   = false
-  #     source      = "0.0.0.0/0"
-  #     source_type = "CIDR_BLOCK"
-  #     protocol    = "6"
-  #     description = "HTTPS traffic"
-
-  #     tcp_options {
-  #       min = 443
-  #       max = 443
-  #     }
 
   ingress_security_rules {
     stateless   = false
