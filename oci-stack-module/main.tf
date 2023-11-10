@@ -21,9 +21,9 @@ provider "oci" {
   region           = var.region
 }
 
-resource "oci_core_volume_backup_policy" "homelab_volume_backup_policy" {
-  compartment_id = oci_identity_compartment.homelab.id
-  display_name   = "homelab"
+resource "oci_core_volume_backup_policy" "oci_stack_volume_backup_policy" {
+  compartment_id = oci_identity_compartment.oci_stack.id
+  display_name   = "oci_stack"
   freeform_tags  = var.tags
 
   schedules {
@@ -40,10 +40,10 @@ resource "oci_core_volume_backup_policy" "homelab_volume_backup_policy" {
   }
 }
 
-resource "oci_core_volume_backup_policy_assignment" "homelab_boot_volume_backup_policy_assignment" {
+resource "oci_core_volume_backup_policy_assignment" "oci_stack_boot_volume_backup_policy_assignment" {
   count     = 3
-  asset_id  = data.oci_core_boot_volumes.homelab_boot_volumes.boot_volumes[count.index].id
-  policy_id = oci_core_volume_backup_policy.homelab_volume_backup_policy.id
+  asset_id  = data.oci_core_boot_volumes.oci_stack_boot_volumes.boot_volumes[count.index].id
+  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
 
   depends_on = [
     oci_core_instance.vm_instance_x86_64,
@@ -51,16 +51,16 @@ resource "oci_core_volume_backup_policy_assignment" "homelab_boot_volume_backup_
   ]
 }
 
-resource "oci_identity_compartment" "homelab" {
+resource "oci_identity_compartment" "oci_stack" {
   compartment_id = var.tenancy_ocid
-  description    = "Compartment for homelab resources."
+  description    = "Compartment for oci_stack resources."
   name           = var.compartment_name
   freeform_tags  = var.tags
 }
 
 resource "oci_core_instance" "vm_instance_ampere" {
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id                      = oci_identity_compartment.homelab.id
+  compartment_id                      = oci_identity_compartment.oci_stack.id
   shape                               = "VM.Standard.A1.Flex"
   display_name                        = join("", [var.vm_name, "10"])
   preserve_boot_volume                = false
@@ -95,7 +95,7 @@ resource "oci_core_instance" "vm_instance_ampere" {
     assign_private_dns_record = true
     hostname_label            = join("", [var.vm_name, "10"])
     private_ip                = join(".", ["10", "0", "0", 110])
-    nsg_ids                   = [oci_core_network_security_group.homelab-network-security-group.id]
+    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
     freeform_tags             = var.tags
   }
 }
@@ -103,7 +103,7 @@ resource "oci_core_instance" "vm_instance_ampere" {
 resource "oci_core_instance" "vm_instance_x86_64" {
   count                               = 2
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id                      = oci_identity_compartment.homelab.id
+  compartment_id                      = oci_identity_compartment.oci_stack.id
   shape                               = "VM.Standard.E2.1.Micro"
   display_name                        = join("", [var.vm_name, "0", count.index + 1])
   preserve_boot_volume                = false
@@ -133,7 +133,7 @@ resource "oci_core_instance" "vm_instance_x86_64" {
     assign_private_dns_record = true
     hostname_label            = join("", [var.vm_name, "0", count.index + 1])
     private_ip                = join(".", ["10", "0", "0", count.index + 101])
-    nsg_ids                   = [oci_core_network_security_group.homelab-network-security-group.id]
+    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
     freeform_tags             = var.tags
   }
 }
@@ -142,17 +142,17 @@ data "oci_identity_availability_domains" "ads" {
   compartment_id = var.tenancy_ocid
 }
 
-data "oci_core_boot_volumes" "homelab_boot_volumes" {
+data "oci_core_boot_volumes" "oci_stack_boot_volumes" {
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id      = oci_identity_compartment.homelab.id
+  compartment_id      = oci_identity_compartment.oci_stack.id
 }
 
 # Source from https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/core_dhcp_options
 
 resource "oci_core_dhcp_options" "dhcp-options" {
-  compartment_id = oci_identity_compartment.homelab.id
+  compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
-  display_name   = "homelab-dhcp-options"
+  display_name   = "oci_stack-dhcp-options"
   freeform_tags  = var.tags
 
   options {
@@ -162,13 +162,13 @@ resource "oci_core_dhcp_options" "dhcp-options" {
 
   options {
     type                = "SearchDomain"
-    search_domain_names = ["homelab.oraclevcn.com"]
+    search_domain_names = ["oci_stack.oraclevcn.com"]
   }
 
 }
 
 resource "oci_core_subnet" "vcn-public-subnet" {
-  compartment_id = oci_identity_compartment.homelab.id
+  compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
   cidr_block     = "10.0.0.0/24"
   freeform_tags  = var.tags
@@ -184,7 +184,7 @@ resource "oci_core_subnet" "vcn-public-subnet" {
 }
 
 resource "oci_core_security_list" "public-security-list" {
-  compartment_id = oci_identity_compartment.homelab.id
+  compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
   display_name   = "security-list-public"
   freeform_tags  = var.tags
@@ -259,26 +259,26 @@ resource "oci_core_security_list" "public-security-list" {
   }
 }
 
-resource "oci_core_network_security_group" "homelab-network-security-group" {
-  compartment_id = oci_identity_compartment.homelab.id
+resource "oci_core_network_security_group" "oci_stack-network-security-group" {
+  compartment_id = oci_identity_compartment.oci_stack.id
   vcn_id         = module.vcn.vcn_id
-  display_name   = "network-security-group-homelab"
+  display_name   = "network-security-group-oci_stack"
   freeform_tags  = var.tags
 }
 
-resource "oci_core_network_security_group_security_rule" "homelab-network-security-group-list-ingress" {
-  network_security_group_id = oci_core_network_security_group.homelab-network-security-group.id
+resource "oci_core_network_security_group_security_rule" "oci_stack-network-security-group-list-ingress" {
+  network_security_group_id = oci_core_network_security_group.oci_stack-network-security-group.id
   direction                 = "INGRESS"
-  source                    = oci_core_network_security_group.homelab-network-security-group.id
+  source                    = oci_core_network_security_group.oci_stack-network-security-group.id
   source_type               = "NETWORK_SECURITY_GROUP"
   protocol                  = "all"
   stateless                 = true
 }
 
-resource "oci_core_network_security_group_security_rule" "homelab-network-security-group-list-egress" {
-  network_security_group_id = oci_core_network_security_group.homelab-network-security-group.id
+resource "oci_core_network_security_group_security_rule" "oci_stack-network-security-group-list-egress" {
+  network_security_group_id = oci_core_network_security_group.oci_stack-network-security-group.id
   direction                 = "EGRESS"
-  destination               = oci_core_network_security_group.homelab-network-security-group.id
+  destination               = oci_core_network_security_group.oci_stack-network-security-group.id
   destination_type          = "NETWORK_SECURITY_GROUP"
   protocol                  = "all"
   stateless                 = true
@@ -288,7 +288,7 @@ module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
   version = "2.2.0"
 
-  compartment_id = oci_identity_compartment.homelab.id
+  compartment_id = oci_identity_compartment.oci_stack.id
   region         = "ap-southeast-2"
   vcn_name       = var.compartment_name
   vcn_dns_label  = var.compartment_name
@@ -299,8 +299,8 @@ module "vcn" {
   vcn_cidr                 = "10.0.0.0/16"
 }
 
-resource "oci_core_volume" "vm_instance_homelab_core_volume" {
-  compartment_id       = oci_identity_compartment.homelab.id
+resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
+  compartment_id       = oci_identity_compartment.oci_stack.id
   availability_domain  = data.oci_identity_availability_domains.ads.availability_domains[0].name
   display_name         = join("-", [var.vm_name, "core", "volume"])
   freeform_tags        = var.tags
@@ -308,9 +308,9 @@ resource "oci_core_volume" "vm_instance_homelab_core_volume" {
   is_auto_tune_enabled = true
 }
 
-resource "oci_core_volume_backup_policy_assignment" "homelab_core_volume_backup_policy_assignment" {
-  asset_id  = oci_core_volume.vm_instance_homelab_core_volume.id
-  policy_id = oci_core_volume_backup_policy.homelab_volume_backup_policy.id
+resource "oci_core_volume_backup_policy_assignment" "oci_stack_core_volume_backup_policy_assignment" {
+  asset_id  = oci_core_volume.vm_instance_oci_stack_core_volume.id
+  policy_id = oci_core_volume_backup_policy.oci_stack_volume_backup_policy.id
 
   depends_on = [
     oci_core_instance.vm_instance_x86_64,
@@ -321,9 +321,9 @@ resource "oci_core_volume_backup_policy_assignment" "homelab_core_volume_backup_
 resource "oci_core_volume_attachment" "test_volume_attachment" {
   attachment_type                     = "paravirtualized"
   instance_id                         = oci_core_instance.vm_instance_ampere.id
-  volume_id                           = oci_core_volume.vm_instance_homelab_core_volume.id
+  volume_id                           = oci_core_volume.vm_instance_oci_stack_core_volume.id
   device                              = "/dev/oracleoci/oraclevdb"
-  display_name                        = "homelab-core-volume-attachment"
+  display_name                        = "oci_stack-core-volume-attachment"
   is_pv_encryption_in_transit_enabled = true
   is_read_only                        = false
 }
@@ -334,7 +334,7 @@ output "all-availability-domains-in-your-tenancy" {
 }
 
 output "compartment-name" {
-  value = oci_identity_compartment.homelab.name
+  value = oci_identity_compartment.oci_stack.name
 }
 
 output "public-ip-x86_64-instances" {
