@@ -1,23 +1,28 @@
+variable "tenancy-ocid" {}
+variable "user-ocid" {}
+variable "fp" {}
+variable "pkey" {}
+varibale "ssh_pub_key" {}
+
 # Define the module source and its location                    
 module "oci-stack-module" {
   source                   = "./oci-stack-module"
-  tenancy_ocid             = var.tenancy_ocid
-  user_ocid                = var.user_ocid
-  fingerprint              = var.fingerprint
-  private_key_path         = var.private_key_path
-# Optional
-# oci_vcn_cidr_block       = "10.2.0.0/16"
-# oci_vcn_cidr_subnet      = "10.2.1.0/24"
-  oci_os_image             = "oraclelinux8"
-  instance_prefix          = "ampere-a1-oraclelinux-8"
-  oci_vm_count             = "1"
-  ampere_a1_vm_memory      = "24"
-  ampere_a1_cpu_core_count = "4"
-  cloud_init_template_file = local.cloud_init_template_path
+  tenancy_ocid             = var.tenancy-ocid
+  user_ocid                = var.user-ocid
+  compartment_name         = var.fp
+  fingerprint              = var.pkey
+  region                   = "uk-london-1"
+  vm_name                  = "oci-stack-instance"
+  vm_image_ocid_x86_64     = "ocid1.image.oc1.uk-london-1.aaaaaaaaojqrgcwxe5ft3tcoccighpeavtpnv5jcgi7pbvssqgibz7mczjeq"
+  vm_image_ocid_ampere     = "ocid1.image.oc1.uk-london-1.aaaaaaaa57kek4gtk6exlfu7yijjsa26bdmm42ibogeqi7ehwah5fxd6ybda"
+  private_key_path         = "ampere-a1-oraclelinux-8"
+  ssh_public_key           = var.ssh_pub_key
+  tags                     = { Project = "oci-tf-stack" }
+
+output "public-ip-x86_64-instances" {
+  value = oci_core_instance.vm_instance_x86_64.*.public_ip
 }
-output "oci_ampere_a1_private_ips" {
-  value     = module.oci-ampere-a1.ampere_a1_private_ips
-}
-output "oci_ampere_a1_public_ips" {
-  value     = module.oci-ampere-a1.ampere_a1_public_ips
+
+output "public-ip-ampere-instance" {
+  value = oci_core_instance.vm_instance_ampere.public_ip
 }
