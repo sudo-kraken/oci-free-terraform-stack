@@ -1,14 +1,10 @@
 terraform {
   required_version = ">= 1.6.0"
 
-  backend "local" {
-    path = "terraform.tfstate"
-  }
-
   required_providers {
     oci = {
       source  = "hashicorp/oci"
-      version = ">= 4.0.0"
+      version = ">= 5.20.0"
     }
   }
 }
@@ -16,7 +12,7 @@ terraform {
 provider "oci" {
   tenancy_ocid     = var.tenancy_ocid
   user_ocid        = var.user_ocid
-  private_key_path = var.private_key_path
+  private_key      = var.private_key
   fingerprint      = var.fingerprint
   region           = var.region
 }
