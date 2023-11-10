@@ -23,7 +23,8 @@ provider "oci" {
 
 # Cloud-Init file
 locals {
-  cloud_init_template_file = "{path.module}/templates/cloud-init.yaml.tpl"
+  a1_cloud_init_template_file = "{path.module}/templates/a1-cloud-init.yaml.tpl"
+  e2_cloud_init_template_file = "{path.module}/templates/e2-cloud-init.yaml.tpl"
 }
 
 data "oci_identity_availability_domains" "ads" {
@@ -208,7 +209,7 @@ resource "oci_core_instance" "vm_instance_ampere" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data = "${base64encode(file("${local.cloud_init_template_file}"))}"
+    user_data = "${base64encode(file("${local.a1_cloud_init_template_file}"))}"
   }
 
   source_details {
@@ -243,7 +244,7 @@ resource "oci_core_instance" "vm_instance_x86_64" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data = "${base64encode(file("${local.cloud_init_template_file}"))}"
+    user_data = "${base64encode(file("${local.e2_cloud_init_template_file}"))}"
   }
 
   source_details {
