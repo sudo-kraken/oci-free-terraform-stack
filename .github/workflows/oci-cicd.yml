@@ -19,7 +19,7 @@ jobs:
     name: 'Terraform OCI Pipeline'
     
     # Define the type of runner that the job will run on
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
     
     # Define the environment in which the job will run
     environment: production
