@@ -1,0 +1,78 @@
+# Name of the workflow
+name: 'Execute OCI Pipeline'
+
+on:
+  # This workflow is triggered manually
+  workflow_dispatch:
+    
+# Define permissions for this workflow
+permissions:
+  # Only read access to the contents is needed
+  contents: read
+
+# Define jobs in this workflow
+jobs:
+  # Define a job for Terraform actions
+  terraform:
+  
+    # Name of the job
+    name: 'Terraform OCI Pipeline'
+    
+    # Define the type of runner that the job will run on
+    runs-on: ubuntu:latest
+    
+    # Define the environment in which the job will run
+    environment: production
+
+    # Set default options for steps in this job
+    defaults:
+      run:
+        # Use the bash shell
+        shell: bash
+
+    # Define steps for this job
+    steps:
+    # Checkout the repository to the GitHub Actions runner 
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GH_SHARED_TOKEN }}
+                
+    # Setup Node.js environment with a specific version
+    - name: Node Setup
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  
+    
+    # Setup Terraform CLI on the runner
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+    
+    # Initialise Terraform 
+    - name: Terraform Init
+      run: terraform init
+
+    # Generate an execution plan for Terraform
+    - name: Terraform Plan
+      run: terraform plan
+
+    # Apply the changes required to reach the desired state of the configuration
+    - name: Terraform Apply
+      id: apply    
+      continue-on-error: true
+      run: terraform apply -auto-approve
+
+    # Check if Terraform Apply failed and set an output variable
+    - name: Check Terraform Apply Outcome
+      id: check
+      run: echo "apply_failed=${{ steps.apply.outcome == 'failure' }}" >> $GITHUB_ENV   
+
+    # Destroy if Terraform Apply failed
+    - name: Terraform Destroy
+      if: env.apply_failed == 'true'
+      id: failure-handler
+      run: |
+        echo "Terraform Apply failed. Initiating cleanup..."
+        terraform destroy -auto-approve
+        echo "cleanup_done=true" >> $GITHUB_ENV  
+      
