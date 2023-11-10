@@ -31,9 +31,9 @@ module "oci-stack" {
 }
 
 output "module_public_ips_x86_64" {
-  value = module.oci_stack.public-ip-x86_64-instances
+  value = module.oci-stack.public-ip-x86_64-instances
 }
 
 output "module_public_ip_ampere" {
-  value = module.oci_stack.public-ip-ampere-instance
+  value = module.oci-stack.public-ip-ampere-instance
 }
