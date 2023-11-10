@@ -55,7 +55,7 @@ jobs:
         echo "TF_VAR_user-ocid=${{ secrets.USER_OCID }}" >> $GITHUB_ENV
         echo "TF_VAR_pkey=${{ secrets.PKEY }}" >> $GITHUB_ENV
         echo "TF_VAR_fp=${{ secrets.FP }}" >> $GITHUB_ENV
-        echo "TF_VAR_ssh-pub-key=${{ secrets.FP }}" >> $GITHUB_ENV
+        echo "TF_VAR_ssh-pub-key=${{ secrets.SSH_PUB_KEY }}" >> $GITHUB_ENV
             
     # Initialise Terraform 
     - name: Terraform Init
