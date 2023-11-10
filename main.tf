@@ -28,6 +28,8 @@ module "oci-stack-module" {
   ssh_public_key           = var.ssh_pub_key
   tags                     = { Project = "oci-tf-stack" }
 
+}
+
 output "public-ip-x86_64-instances" {
   value = oci_core_instance.vm_instance_x86_64.*.public_ip
 }
