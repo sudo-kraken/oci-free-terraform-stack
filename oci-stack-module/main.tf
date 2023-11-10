@@ -41,17 +41,18 @@ resource "oci_identity_compartment" "oci_stack" {
 
 module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
-  version = "2.2.0"
+  version = "3.5.5"
 
   compartment_id = oci_identity_compartment.oci_stack.id
   region         = var.region
   vcn_name       = var.compartment_name
   vcn_dns_label  = var.compartment_name
 
-  internet_gateway_enabled = true
-  nat_gateway_enabled      = false
-  service_gateway_enabled  = false
-  vcn_cidr                 = "10.0.0.0/16"
+  create_internet_gateway  = true
+  create_nat_gateway       = false
+  create_service_gateway   = false
+  vcn_cidrs                = "10.0.0.0/16"
+  tags                     = var.tags
 }
 
 resource "oci_core_dhcp_options" "dhcp-options" {
