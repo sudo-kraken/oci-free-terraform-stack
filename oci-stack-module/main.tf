@@ -46,7 +46,7 @@ module "vcn" {
   compartment_id = oci_identity_compartment.oci_stack.id
   region         = var.region
   vcn_name       = "ocistack"
-  vcn_dns_label  = var.compartment_name
+  vcn_dns_label  = "ocistackdns"
 
   create_internet_gateway  = true
   create_nat_gateway       = false
