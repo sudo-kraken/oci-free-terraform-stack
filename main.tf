@@ -11,7 +11,7 @@ variable "fp" {}
 variable "pkey" {}
 
 # SSH public key to use for SSH access
-varibale "ssh_pub_key" {}
+variable "ssh_pub_key" {}
 
 # Define the module source and its location                    
 module "oci-stack-module" {
