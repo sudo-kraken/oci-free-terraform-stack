@@ -71,17 +71,6 @@ jobs:
     - name: Terraform Plan
       run: terraform plan
       
-    # Require a manual review step for approval
-    - name: Manual Review
-      uses: trstringer/manual-approval@v1
-      with:
-        # GitHub token for authentication
-        secret: ${{ secrets.PAT_TOKEN }}
-        # Dynamic list of GitHub usernames who can approve (current user)
-        approvers: ${{ github.actor }}
-        # Minimum number of approvals required
-        minimum-approvals: 1
-
     # Apply the changes required to reach the desired state of the configuration
     - name: Terraform Apply
       id: apply    
@@ -92,18 +81,6 @@ jobs:
     - name: Check Terraform Apply Outcome
       id: check
       run: echo "apply_failed=${{ steps.apply.outcome == 'failure' }}" >> $GITHUB_ENV   
-
-    # Require a manual review step for approval
-    - name: Manual Review
-      if: env.apply_failed == 'true'
-      uses: trstringer/manual-approval@v1
-      with:
-        # GitHub token for authentication
-        secret: ${{ secrets.PAT_TOKEN }}
-        # Dynamic list of GitHub usernames who can approve (current user)
-        approvers: ${{ github.actor }}
-        # Minimum number of approvals required
-        minimum-approvals: 1
 
     # Destroy if Terraform Apply failed
     - name: Terraform Destroy
