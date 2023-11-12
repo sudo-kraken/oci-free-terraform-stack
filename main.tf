@@ -34,6 +34,22 @@ output "module_public_ips_x86_64" {
   value = module.oci-stack.public-ip-x86_64-instances
 }
 
+output "module_private_ips_x86_64" {
+  value = module.oci-stack.private-ip-x86_64-instances
+}
+
+output "module_instance_id_x86_64" {
+  value = module.oci-stack.instance-id-x86_64-instances
+}
+
 output "module_public_ip_ampere" {
   value = module.oci-stack.public-ip-ampere-instance
+}
+
+output "module_private_ip_ampere" {
+  value = module.oci-stack.private-ip-ampere-instance
+}
+
+output "module_instance_id_ampere" {
+  value = module.oci-stack.instance-id-ampere-instance
 }
