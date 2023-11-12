@@ -223,6 +223,12 @@ resource "oci_core_instance" "vm_instance_ampere" {
     user_data = "${base64encode(file("${local.a1_cloud_init_template_file}"))}"
   }
 
+  agent_config {
+    are_all_plugins_disabled = true
+    is_management_disabled   = true
+    is_monitoring_disabled   = true
+  }
+
   source_details {
     source_id   = var.vm_image_ocid_ampere
     source_type = "image"
@@ -256,6 +262,12 @@ resource "oci_core_instance" "vm_instance_x86_64" {
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
     user_data = "${base64encode(file("${local.e2_cloud_init_template_file}"))}"
+  }
+
+  agent_config {
+    are_all_plugins_disabled = true
+    is_management_disabled   = true
+    is_monitoring_disabled   = true
   }
 
   source_details {
@@ -297,6 +309,32 @@ resource "oci_core_volume_attachment" "extra_volume_attachment" {
   display_name                        = "oci_stack-core-volume-attachment"
   is_pv_encryption_in_transit_enabled = true
   is_read_only                        = false
+}
+
+# Backup Policy
+resource "oci_core_volume_backup_policy" "backup_policy" {
+  count = 3
+  compartment_id = oci_identity_compartment.oci_stack.id
+  display_name = format("Daily %d", count.index)
+
+  schedules {
+    backup_type       = "INCREMENTAL"
+    hour_of_day       = count.index
+    offset_type       = "STRUCTURED"
+    period            = "ONE_DAY"
+    retention_seconds = 86400
+    time_zone         = "REGIONAL_DATA_CENTER_TIME"
+  }
+}
+
+resource "oci_core_volume_backup_policy_assignment" "backup_policy_assignment" {
+  count = 3
+  asset_id = (
+    count.index < 2 ?
+    oci_core_instance.vm_instance_x86_64[count.index].boot_volume_id :
+    oci_core_instance.vm_instance_ampere.boot_volume_id
+  )
+  policy_id = oci_core_volume_backup_policy.backup_policy[count.index].id
 }
 
 
