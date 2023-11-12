@@ -111,6 +111,7 @@ resource "oci_core_security_list" "public-security-list" {
     protocol         = "all"
   }
 
+  # Ingress rules for SSH and ICMP
   ingress_security_rules {
     stateless   = false
     source      = "0.0.0.0/0"
@@ -124,7 +125,6 @@ resource "oci_core_security_list" "public-security-list" {
     }
   }
 
-  # Ingress rules for SSH and ICMP
   ingress_security_rules {
     stateless   = false
     source      = "0.0.0.0/0"
@@ -286,6 +286,7 @@ resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
   freeform_tags        = var.tags
   size_in_gbs          = 59
   is_auto_tune_enabled = true
+  vpus_per_gb          = 0
 }
 
 resource "oci_core_volume_attachment" "extra_volume_attachment" {
