@@ -23,7 +23,7 @@ output "private-ip-ampere-instance" {
   value = oci_core_instance.vm_instance_ampere.private_ip
 }
 
-output "instance-id-ip-ampere-instance" {
+output "instance-id-ampere-instance" {
   description = "The OCID of the A1 instance"
   value = oci_core_instance.vm_instance_ampere.id
 }
