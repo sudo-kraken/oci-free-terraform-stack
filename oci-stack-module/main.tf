@@ -208,7 +208,7 @@ resource "oci_core_instance" "vm_instance_ampere" {
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
   compartment_id                      = oci_identity_compartment.oci_stack.id
   shape                               = "VM.Standard.A1.Flex"
-  display_name                        = join("", [var.vm_name, "10"])
+  display_name                        = join("", [var.vm_name, "a1"])
   preserve_boot_volume                = false
   is_pv_encryption_in_transit_enabled = true
   freeform_tags                       = var.tags
