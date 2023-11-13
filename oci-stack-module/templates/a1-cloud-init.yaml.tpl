@@ -32,3 +32,12 @@ runcmd:
   - systemctl start docker
   - docker info
   - echo 'OCI Ampere A1 OracleLinux 9.2' >> /etc/motd
+  # Mount additional drive
+  - |
+    if [ ! -e "/dev/oracleoci/oraclevdb1" ]; then
+      echo "n1" | sfdisk /dev/oracleoci/oraclevdb
+      mkfs.ext4 /dev/oracleoci/oraclevdb1
+      mkdir -p /mnt/data
+      mount /dev/oracleoci/oraclevdb1 /mnt/data
+      echo '/dev/oracleoci/oraclevdb1 /mnt/data ext4 defaults,nofail 0 2' >> /etc/fstab
+    fi
