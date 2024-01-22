@@ -17,7 +17,11 @@
   <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" /></a>
   <a href="https://www.gnu.org/software/bash/"><img src="https://img.shields.io/badge/-Bash-4EAA25?style=flat&logo=gnu-bash&logoColor=white" alt="Bash" /></a>
 </p>
+<br>
+<p align="center">
+  <a href="https://www.buymeacoffee.com/jharrison94" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px" width="217px" >
 
+## Overview    
 This module is used for provisioning Oracle Cloud Infrastructure (OCI) deployments, offering a comprehensive and efficient solution for setting up a robust cloud environment. It seamlessly provisions a stack comprising of;
   - 2x VM.Standard.E2.1.Micro instances, each with 1 OCPU and 1 GB RAM
   - 1x VM.Standard.A1.Flex instance equipped with 4 OCPUs and 24 GB RAM. Additionally, it includes a 59 GB block volume
