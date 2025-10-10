@@ -1,93 +1,69 @@
-# Name of the workflow
-name: 'Execute OCI Pipeline'
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: "Execute OCI Pipeline"
 
 on:
-  # This workflow is triggered manually
   workflow_dispatch:
-    
-# Define permissions for this workflow
+
 permissions:
-  # Only read access to the contents is needed
   contents: read
 
-# Define jobs in this workflow
 jobs:
-  # Define a job for Terraform actions
   terraform:
-  
-    # Name of the job
-    name: 'Terraform OCI Pipeline'
-    
-    # Define the type of runner that the job will run on
-    runs-on: ubuntu-latest
-    
-    # Define the environment in which the job will run
-    environment: production
-
-    # Set default options for steps in this job
+    name: "Terraform OCI Pipeline"
+    runs-on: ubuntu-24.04
     defaults:
       run:
-        # Use the bash shell
         shell: bash
-
-    # Define steps for this job
     steps:
-    # Checkout the repository to the GitHub Actions runner 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT_TOKEN }}
-                
-    # Setup Node.js environment with a specific version
-    - name: Node Setup
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'  
-    
-    # Setup Terraform CLI on the runner
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-    # Populate the private key file
-    - name: Setup SSH Private Key
-      run: |
-        echo "${{ secrets.PKEY }}" > pkey.pem
-        chmod 600 pkey.pem
-        echo "TF_VAR_pkey_path=$(pwd)/pkey.pem" >> $GITHUB_ENV
-    
-    # Set up Terraform variables from GitHub Secrets
-    - name: Setup Terraform Vars
-      run: |
-        echo "TF_VAR_tenancy_ocid=${{ secrets.TENANCY_OCID }}" >> $GITHUB_ENV
-        echo "TF_VAR_user_ocid=${{ secrets.USER_OCID }}" >> $GITHUB_ENV
-        echo "TF_VAR_fp=${{ secrets.FP }}" >> $GITHUB_ENV
-        echo "TF_VAR_ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" >> $GITHUB_ENV
-            
-    # Initialise Terraform 
-    - name: Terraform Init
-      run: terraform init
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "22"
 
-    # Generate an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan
-      
-    # Apply the changes required to reach the desired state of the configuration
-    - name: Terraform Apply
-      id: apply    
-      continue-on-error: true
-      run: terraform apply -auto-approve
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: latest
 
-    # Check if Terraform Apply failed and set an output variable
-    - name: Check Terraform Apply Outcome
-      id: check
-      run: echo "apply_failed=${{ steps.apply.outcome == 'failure' }}" >> $GITHUB_ENV   
+      - name: Setup SSH Private Key
+        run: |
+          echo "${{ secrets.PKEY }}" > pkey.pem
+          chmod 600 pkey.pem
+          echo "TF_VAR_pkey_path=$(pwd)/pkey.pem" >> $GITHUB_ENV
 
-    # Destroy if Terraform Apply failed
-    - name: Terraform Destroy
-      if: env.apply_failed == 'true'
-      id: failure-handler
-      run: |
-        echo "Terraform Apply failed. Initiating cleanup..."
-        terraform destroy -auto-approve
-        echo "cleanup_done=true" >> $GITHUB_ENV  
-      
+      - name: Setup Terraform Vars
+        run: |
+          echo "TF_VAR_tenancy_ocid=${{ secrets.TENANCY_OCID }}" >> $GITHUB_ENV
+          echo "TF_VAR_user_ocid=${{ secrets.USER_OCID }}" >> $GITHUB_ENV
+          echo "TF_VAR_fp=${{ secrets.FP }}" >> $GITHUB_ENV
+          echo "TF_VAR_ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        id: apply
+        continue-on-error: true
+        run: terraform apply -auto-approve
+
+      - name: Check Terraform Apply Outcome
+        id: check
+        run: echo "apply_failed=${{ steps.apply.outcome == 'failure' }}" >> $GITHUB_ENV
+
+      - name: Terraform Destroy
+        if: env.apply_failed == 'true'
+        id: failure-handler
+        run: |
+          echo "Terraform Apply failed. Initiating cleanup..."
+          terraform destroy -auto-approve
+          echo "cleanup_done=true" >> $GITHUB_ENV
