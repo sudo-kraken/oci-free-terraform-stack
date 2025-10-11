@@ -3,7 +3,6 @@
   description: "Automated dependency updates for oci-free-terraform-stack",
   extends: [
     "config:recommended",
-    "docker:enableMajor",
     "replacements:k8s-registry-move",
     ":automergePr",
     ":automergePatch",
@@ -12,6 +11,7 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":timezone(Europe/London)",
+    "github>sudo-kraken/oci-free-terraform-stack//.github/renovate/actions.json5",
     "github>sudo-kraken/oci-free-terraform-stack//.github/renovate/devcontainers.json5",
     "github>sudo-kraken/oci-free-terraform-stack//.github/renovate/labels.json5",
     "github>sudo-kraken/oci-free-terraform-stack//.github/renovate/semanticCommits.json5",
@@ -20,15 +20,10 @@
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
   rebaseWhen: "conflicted",
-  schedule: ["before 9pm on friday"],
+  pruneStaleBranches: true,
+  pruneBranchAfterAutomerge: true,
   prConcurrentLimit: 5,
   labels: ["dependencies"],
+  schedule: ["after 9pm on sunday"],
   minimumReleaseAge: "7 days",
-
-  packageRules: [
-    {
-      matchManagers: ["github-actions"],
-      minimumReleaseAge: null,
-    },
-  ],
 }
