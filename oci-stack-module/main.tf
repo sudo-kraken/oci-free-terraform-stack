@@ -47,7 +47,7 @@ resource "oci_identity_compartment" "oci_stack" {
 # Create a Virtual Cloud Network (VCN) in OCI.
 module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
-  version = "3.5.5"
+  version = "3.6.0"
 
   compartment_id = oci_identity_compartment.oci_stack.id
   region         = var.region
