@@ -1,11 +1,11 @@
 # Specify the required Terraform version and the required providers.
 terraform {
-  required_version = ">= 1.6.0"
+  required_version = ">= 1.6.0, < 2.0.0"
 
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = ">= 5.20.0"
+      version = ">= 8.18.0, < 9.0.0"
     }
   }
 }
@@ -214,8 +214,8 @@ resource "oci_core_instance" "vm_instance_ampere" {
   freeform_tags                       = var.tags
 
   shape_config {
-    memory_in_gbs = 24
-    ocpus         = 4
+    memory_in_gbs = 12
+    ocpus         = 2
   }
 
   metadata = {
