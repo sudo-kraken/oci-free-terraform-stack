@@ -42,7 +42,7 @@ This module provisions an Oracle Cloud Infrastructure environment that fits the 
 
 The stack includes:
 - **2x VM.Standard.E2.1.Micro** instances, each with **1 OCPU** and **1 GB RAM**
-- **1x VM.Standard.A1.Flex** instance with **4 OCPUs** and **24 GB RAM**, plus a **59 GB block volume**
+- **1x VM.Standard.A1.Flex** instance with **2 OCPUs** and **12 GB RAM**, plus a **59 GB block volume** # REDUCED FROM 4 OCPUs and 26GB RAM 15/06/2026
 - A **Virtual Cloud Network** with subnets, security lists and an internet gateway
 
 > [!NOTE]  
